@@ -1,0 +1,4 @@
+CREATE OR REPLACE VIEW rentabilitePourcentVente(idImmo, (prixVente/(prixVente-marge))*100 as resultat)
+AS SELECT idImmo, (prixVente/(prixVente-marge))*100 as resultat
+FROM VENTE
+WHERE prixVente <> 0;

@@ -1,0 +1,26 @@
+CREATE OR REPLACE TRIGGER gestionAgent BEFORE INSERT OR UPDATE
+ON CONTRAT FOR EACH ROW
+EXECUTE
+        DECLARE
+                int prix := 0;
+
+        BEGIN
+                SELECT V.prixVente into prix
+                FROM CONTRAT C, VENTE V
+                WHERE C.idImmo = V.idImmo
+                AND C.idPersonnel = :new.idPersonnel;
+
+
+                IF(YEAR(NOW) <> (SELECT annee FROM VENTEAGENT WHERE idPersonnel = :new.idPersonnel)) THEN
+                        INSERT INTO VENTEAGENT(idPersonnel, annee, nbVente, benef)
+                        VALUES(:new.idPersonnel, YEAR(NOW), 1, prix);
+                ELSE
+                        UPDATE VENTEAGENT
+                        SET nbVente = nbVente+1,
+                        benef = benef + prix
+                        WHERE idPersonnel = :new.idPersonnel
+                END IF;
+
+                COMMIT;
+END;
+/

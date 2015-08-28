@@ -1,0 +1,15 @@
+CREATE TRIGGER controlVisite BEFORE INSERT OR UPDATE
+ON CRENEAU FOR EACH ROW
+EXECUTE
+        BEGIN
+                IF(HOUR(:new.dateDebut) < 08 OR HOUR(:new.dateFin) > 20) THEN
+                        ROLLBACK;
+                ELSE IF (:new.dateDebut = (SELECT dateDebut FROM CRENEAU WHERE idClient = :new.idClient) OR :new.dateDebut = (SELECT dateDebut FROM CRENEAU WHERE idPersonnel = :new.idPersonnel)) THEN
+                        ROLLBACK;
+                ELSE IF ((SELECT count(idClient) FROM CRENEAU WHERE dateDebut = :new.dateDebut) > 3) THEN
+                        ROLLBACK;
+                ELSE
+                        COMMIT;
+                END IF;                
+END;
+/

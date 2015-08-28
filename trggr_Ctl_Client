@@ -1,0 +1,13 @@
+CREATE TRIGGER controlClient BEFORE INSERT OR UPDATE
+ON CLIENT FOR EACH ROW
+EXECUTE        
+        BEGIN
+                :new.nom = UPPER(:new.nom);
+                :new.prenom = INITCAP(:new.prenom);
+                IF(:new.email NOT LIKE '%@%.%') THEN
+                        ROLLBACK;
+                ELSE
+                        COMMIT;
+                END IF;        
+END;
+/

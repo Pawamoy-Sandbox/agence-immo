@@ -1,0 +1,34 @@
+CREATE OR REPLACE PROCEDURE diminuePrix IS
+	
+	prixBien VENTE.prixVente%TYPE;
+	margeBien VENTE.marge%TYPE;
+	idBien VENTE.idImmo%TYPE;
+	
+	CURSOR modifPrix IS
+	SELECT idImmo, prixVente, marge
+	FROM VENTE;
+	
+BEGIN
+	OPEN modifPrix;
+	
+	LOOP
+	
+	FETCH modifPrix INTO idBien, prixBien, margeBien;
+	IF (modifPrix%NOTFOUND) THEN
+		EXIT;
+	ELSE
+		IF (prixBien - (prixBien *2)/100) > (prixBien - margeBien) THEN
+			UPDATE VENTE SET prix = prixBien - (prixBien *2)/100 WHERE idImmo = idBien;
+		ELSE
+			UPDATE VENTE SET prix = (prixBien - margeBien) WHERE idImmo = idBien;
+		END IF;
+	END IF;
+	
+	END LOOP;
+	
+	CLOSE modifPrix;
+	
+	COMMIT();
+	
+END;
+/
